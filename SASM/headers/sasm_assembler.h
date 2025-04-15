@@ -325,6 +325,7 @@ void translateSasmFile(Sasm* sasm, String inputFilePath);
 void loadSmExecutableIntoSasm(Sasm* sasm, const char* filePath);
 
 void pushUnresolvedOperand(Sasm* sasm, InstAddr addr, Expr expr, FileLocation location);
+void pushIncludePath(Sasm* sasm, const char* path);
 void bindUnresolvedLocalScope(Scope* scope, String name, BindingType type, FileLocation location);
 void bindExprLocalScope(Scope* scope, String name, Expr expr, FileLocation location);
 Binding* resolveBinding(Sasm* sasm, String name);
