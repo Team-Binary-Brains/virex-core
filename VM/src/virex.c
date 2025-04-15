@@ -178,6 +178,8 @@ void executeProgram(Vm* vm, int debug, int lim)
         refreshWindow(vm->disp.windows[OUTPUT], getNameForWindow(OUTPUT), 4, 5, 3);
         refreshWindow(vm->disp.windows[DETAILS], getNameForWindow(DETAILS), 1, 1, 1);
         refreshWindow(vm->disp.windows[MEMORY], getNameForWindow(MEMORY), 2, 2, 3);
+        refreshWindow(vm->disp.windows[INPUT], getNameForWindow(INPUT), 5, 5, 3);
+
         if (debug == 1) {
             wgetch(vm->disp.windows[INPUT]);
         }
