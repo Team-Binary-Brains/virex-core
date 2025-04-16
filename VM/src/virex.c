@@ -249,11 +249,11 @@ Error executeInst(Vm* vm, WINDOW* win)
         return ERR_ILLEGAL_INST_ACCESS;
     }
     Instruction inst = *getInstructionAt(vm, getReg(REG_NX, vm)->u64);
-    if (inst.opr1IsInline) {
-        inst.operand.u64 = getReg(inst.operand.u64, vm)->u64;
+    if (inst.opr1IsReg && inst.operand.u64 > REG_COUNT) {
+        inst.operand.u64 = getReg(inst.operand.u64%REG_COUNT, vm)->u64;
     }
-    if (inst.opr2IsInline) {
-        inst.operand2.u64 = getReg(inst.operand2.u64, vm)->u64;
+    if (inst.opr2IsReg && inst.operand2.u64 > REG_COUNT) {
+        inst.operand2.u64 = getReg(inst.operand2.u64%REG_COUNT, vm)->u64;
     }
 
     // printf("\nenter : %d %s", inst.type, OpcodeDetailsLUT[inst.type].name);
@@ -268,7 +268,6 @@ Error executeInst(Vm* vm, WINDOW* win)
         break;
 
     case INST_INVOK:
-        printf("%ld", inst.operand.u64);
         if (inst.operand.u64 > vm->vmCalls.internalVmCallsDefined)
             return ERR_ILLEGAL_OPERAND;
 

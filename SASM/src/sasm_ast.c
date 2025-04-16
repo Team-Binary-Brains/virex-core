@@ -44,11 +44,7 @@ int dumpExprAsAST(FILE* stream, Expr expr, int* counter)
         break;
 
     case EXPR_REG:
-        fprintf(stream, "Expr_%d [shape=cylinder style=filled fillcolor=lightyellow fontname=\"Courier\" label=\"Reference( %ld )\"]\n",
-            id, expr.value.reg_id);
-        break;
-    case EXPR_REG_INLINE:
-        fprintf(stream, "Expr_%d [shape=cylinder style=filled fillcolor=lightyellow fontname=\"Courier\" label=\"Value( %ld )\"]\n",
+        fprintf(stream, "Expr_%d [shape=cylinder style=filled fillcolor=lightyellow fontname=\"Courier\" label=\"%ld\"]\n",
             id, expr.value.reg_id);
         break;
     }

@@ -67,7 +67,6 @@ enum ExprType {
     EXPR_LIT_STR,
     EXPR_FUNCALL,
     EXPR_REG,
-    EXPR_REG_INLINE
 };
 
 enum BindingType {

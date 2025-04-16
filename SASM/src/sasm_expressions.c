@@ -131,6 +131,38 @@ EvalResult resolveFuncall(Sasm* sasm, Expr expr, FileLocation location)
 
         return resultOK(length, BIND_TYPE_UINT);
     }
+    if (compareStr(expr.value.funcall->name, convertCstrToStr("ref"))) {
+        checkFuncArgs(expr.value.funcall, 1, location);
+
+        if (expr.value.funcall->args->value.type != EXPR_REG) {
+            fprintf(stderr, FLFmt ": ERROR: ref expects a register ", FLArg(location));
+        }
+
+        EvalResult result = evaluateExpression(
+            sasm,
+            expr.value.funcall->args->value,
+            location);
+        return result;
+    }
+    if (compareStr(expr.value.funcall->name, convertCstrToStr("val"))) {
+        checkFuncArgs(expr.value.funcall, 1, location);
+
+        if (expr.value.funcall->args->value.type != EXPR_REG) {
+            fprintf(stderr, FLFmt ": ERROR: type expects a register ", FLArg(location));
+        }
+
+        EvalResult result = evaluateExpression(
+            sasm,
+            expr.value.funcall->args->value,
+            location);
+
+        if (result.status == EVAL_STATUS_DEFERRED) {
+            return result;
+        }
+        uint64_t val = result.value.u64 + REG_COUNT;
+        return resultOK(
+            quadwordFromU64(val), BIND_TYPE_UINT);
+    }
     displayErrorDetailsWithExit(location, "Unknown translation time function", expr.value.funcall->name);
     exit(1);
 }
@@ -191,7 +223,6 @@ EvalResult evaluateExpression(Sasm* sasm, Expr expr, FileLocation location)
         return evaluateBinding(sasm, binding);
 
     case EXPR_REG:
-    case EXPR_REG_INLINE:
         return resultOK(
             quadwordFromU64(expr.value.reg_id),
             BIND_TYPE_UINT);
