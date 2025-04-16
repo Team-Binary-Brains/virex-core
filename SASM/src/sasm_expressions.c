@@ -113,16 +113,14 @@ EvalResult resolveFuncall(Sasm* sasm, Expr expr, FileLocation location)
         checkFuncArgs(expr.value.funcall, 1, location);
 
         QuadWord addr = { 0 };
-        {
-            EvalResult result = evaluateExpression(
-                sasm,
-                expr.value.funcall->args->value,
-                location);
-            if (result.status == EVAL_STATUS_DEFERRED) {
-                return result;
-            }
-            addr = result.value;
+        EvalResult result = evaluateExpression(
+            sasm,
+            expr.value.funcall->args->value,
+            location);
+        if (result.status == EVAL_STATUS_DEFERRED) {
+            return result;
         }
+        addr = result.value;
         QuadWord length = { 0 };
         if (!getStrLenByAddr(sasm, addr.u64, &length)) {
             fprintf(stderr, FLFmt ": ERROR: Could not compute the length of string at address %" PRIu64 "\n", FLArg(location), addr.u64);
@@ -130,6 +128,26 @@ EvalResult resolveFuncall(Sasm* sasm, Expr expr, FileLocation location)
         }
 
         return resultOK(length, BIND_TYPE_UINT);
+    }
+    if (compareStr(expr.value.funcall->name, convertCstrToStr("res"))) {
+        checkFuncArgs(expr.value.funcall, 1, location);
+
+        QuadWord addr = { 0 };
+        EvalResult result = evaluateExpression(
+            sasm,
+            expr.value.funcall->args->value,
+            location);
+
+        assert(sasm->memorySize + result.value.u64 <= MEMORY_CAPACITY);
+
+        addr = quadwordFromU64(sasm->memorySize);
+        sasm->memorySize += result.value.u64;
+
+        if (sasm->memorySize > sasm->memoryCapacity) {
+            sasm->memoryCapacity = sasm->memorySize;
+        }
+
+        return resultOK(addr, BIND_TYPE_UINT);
     }
     if (compareStr(expr.value.funcall->name, convertCstrToStr("ref"))) {
         checkFuncArgs(expr.value.funcall, 1, location);
@@ -148,7 +166,7 @@ EvalResult resolveFuncall(Sasm* sasm, Expr expr, FileLocation location)
         checkFuncArgs(expr.value.funcall, 1, location);
 
         if (expr.value.funcall->args->value.type != EXPR_REG) {
-            fprintf(stderr, FLFmt ": ERROR: type expects a register ", FLArg(location));
+            fprintf(stderr, FLFmt ": ERROR: val expects a register ", FLArg(location));
         }
 
         EvalResult result = evaluateExpression(
